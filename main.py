@@ -114,9 +114,13 @@ def is_blurry_by_area(blur_map, threshold, area_ratio):
     total_pixels = blur_map.size
     if total_pixels == 0:
         return True, 1.0  # 空图像视为模糊
-    blurry_pixels = np.sum(blur_map < threshold)  # 统计低于阈值的模糊像素
-    blurry_ratio = blurry_pixels / total_pixels
-    return blurry_ratio > area_ratio, blurry_ratio
+    threshold = float(threshold)
+    # 统计模糊像素（转换为Python int）
+    blurry_pixels = int(np.sum(blur_map < threshold))
+    # 计算占比并转换为Python float
+    blurry_ratio = float(blurry_pixels / total_pixels)
+    # 返回Python原生bool和float
+    return (blurry_ratio > area_ratio), blurry_ratio
 
 
 def process_image(image_path, threshold, area_ratio, fix_size, 
