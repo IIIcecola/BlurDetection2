@@ -189,7 +189,7 @@ class BlurDetector:
             patches = self._divide_into_patches(image)
             total_patches = len(patches)
             if total_patches == 0:
-                return True, 1.0, []  # 空图像视为模糊
+                return True, 1.0, [], []  # 空图像视为模糊
             
             # 2. 检测每个块是否模糊
             blur_patches = set()
@@ -210,7 +210,7 @@ class BlurDetector:
                 patch_details.append({
                     "coord": coord,
                     "bbox": bbox,
-                    "variance": float(patch_var),
+                    "lapiacian_variance": float(patch_var),
                     "local_threshold": float(local_thresh),
                     "is_blur": is_blur
                 })
@@ -240,11 +240,11 @@ class BlurDetector:
                     "patches": list(region)
                 })
             
-            return (blurry_ratio > self.min_region_size / total_patches), blurry_ratio, region_details
+            return (blurry_ratio > self.min_region_size / total_patches), blurry_ratio, region_details, patch_details
         
         except Exception as e:
             logger.error(f"分块模糊判断失败：{str(e)}\n{traceback.format_exc()}")
-            return True, 1.0, []
+            return True, 1.0, [], []
     # ------------------------------------------------------------------------
 
     def _process_image(self, image_path):
@@ -262,7 +262,7 @@ class BlurDetector:
             
             # 模糊检测（分块版本）
             blur_map, global_score, _ = estimate_blur(image)  # 保留全局评分用于参考
-            is_blurry, blurry_ratio, region_details = self._is_blurry_by_patches(image)
+            is_blurry, blurry_ratio, region_details, patch_details = self._is_blurry_by_patches(image)
             
             # 计算输出路径
             output_file_path, output_doc_dir = self._get_output_paths(image_path)
@@ -282,6 +282,7 @@ class BlurDetector:
                     'min_region_size': self.min_region_size
                 },
                 'blur_regions': region_details,  # 新增模糊区域详情
+                'patch_details': patch_details,
                 'timestamp': datetime.now().isoformat()
             }
             
@@ -382,14 +383,15 @@ class BlurDetector:
                     
                     # I帧采用分块检测
                     blur_map, global_score, _ = estimate_blur(frame)
-                    is_blurry, blurry_ratio, region_details = self._is_blurry_by_patches(frame)
+                    is_blurry, blurry_ratio, region_details, patch_details = self._is_blurry_by_patches(frame)
                     
                     iframe_result = {
                         'iframe_idx': idx,
                         'global_score': float(global_score),
                         'blurry_patch_ratio': float(blurry_ratio),
                         'blurry': is_blurry,
-                        'blur_regions': region_details
+                        'blur_regions': region_details,
+                        'patch_details': patch_details
                     }
                     
                     # 保存I帧相关可视化结果
