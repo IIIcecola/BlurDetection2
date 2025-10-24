@@ -202,7 +202,7 @@ class BlurDetector:
                 
                 # 局部阈值判断
                 local_thresh = self._calculate_local_patch_threshold(patch)
-                is_blur = patch_var < local_thresh
+                is_blur = bool(patch_var < local_thresh)
                 
                 if is_blur:
                     blur_patches.add(coord)
