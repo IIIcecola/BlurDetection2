@@ -2,7 +2,7 @@ import sys
 import os
 import argparse
 import logging
-import pathlib
+from pathlib import Path
 import json
 import shutil
 import traceback
@@ -15,10 +15,6 @@ import numpy as np
 
 from blur_detection.detection import estimate_blur, fix_image_size, pretty_blur_map
 from blur_detection.blur_detection import BlurDetector
-
-import argparse
-from pathlib import Path
-from blur_detector import BlurDetector  # 假设你的BlurDetector类定义在blur_detector.py中
 
 
 def main():
