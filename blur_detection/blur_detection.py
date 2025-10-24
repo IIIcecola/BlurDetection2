@@ -127,18 +127,29 @@ class BlurDetector:
 
     # -------------------------- 新增分块检测核心方法 --------------------------
     def _divide_into_patches(self, image):
-        """划分图像为块（保留边缘不完整块）"""
+        """
+        修复块坐标：使用行列索引作为coord（而非像素坐标）
+        返回：[( (行索引, 列索引), 块数据, 像素边界框 ), ...]
+        """
         h, w = image.shape[:2]
-        patches = []  # 元素: (块坐标(row, col), 块数据, 边界框(x1,y1,x2,y2))
+        patches = []
+        row_idx = 0  # 块的行索引（从0开始）
         
-        for row in range(0, h, self.patch_size):
-            for col in range(0, w, self.patch_size):
-                y1 = row
-                y2 = min(row + self.patch_size, h)
-                x1 = col
-                x2 = min(col + self.patch_size, w)
-                patch = image[y1:y2, x1:x2]
-                patches.append(((row, col), patch, (x1, y1, x2, y2)))
+        # 按行划分块
+        for y in range(0, h, self.patch_size):
+            col_idx = 0  # 块的列索引（从0开始）
+            y2 = min(y + self.patch_size, h)
+            
+            # 按列划分块
+            for x in range(0, w, self.patch_size):
+                x2 = min(x + self.patch_size, w)
+                patch = image[y:y2, x:x2]
+                
+                # 关键修复：coord使用(行索引, 列索引)，而非像素坐标
+                patches.append(((row_idx, col_idx), patch, (x, y, x2, y2)))
+                col_idx += 1  # 列索引递增
+            
+            row_idx += 1  # 行索引递增
         
         return patches
 
@@ -168,7 +179,7 @@ class BlurDetector:
                 region = {patch}
                 
                 while queue:
-                    r, c = queue.pop(0)
+                    r, c = queue.popleft()
                     # 检查8个方向的邻居
                     for dr in (-1, 0, 1):
                         for dc in (-1, 0, 1):
