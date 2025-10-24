@@ -14,6 +14,7 @@ import cv2
 import numpy as np
 
 from blur_detection.detection import estimate_blur, fix_image_size, pretty_blur_map
+from blur_detection.blur_detection import BlurDetect
 
 # 配置日志
 logging.basicConfig(
