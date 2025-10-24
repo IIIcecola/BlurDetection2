@@ -14,17 +14,17 @@ def main():
     parser.add_argument('output_dir', type=str, help='结果输出根目录（保持原目录结构）')
     
     # 分块检测参数
-    parser.add_argument('--patch-size', type=int, default=64, 
+    parser.add_argument('--patch-size', type=int, default=256, 
                       help='分块大小（像素）')
-    parser.add_argument('--patch-threshold', type=float, default=30.0, 
+    parser.add_argument('--patch-threshold', type=float, default=10.0, 
                       help='块模糊判断基础阈值（拉普拉斯方差）')
-    parser.add_argument('--local-range', type=float, default=0.3, 
+    parser.add_argument('--local-range', type=float, default=0, 
                       help='局部阈值浮动比例（±百分比，如0.3表示±30%）')
     parser.add_argument('--min-region-size', type=int, default=9, 
                       help='最小有效模糊区域的块数量')
     
     # 视频检测参数
-    parser.add_argument('--blur-iframe-ratio', type=float, default=0.3, 
+    parser.add_argument('--blur-iframe-ratio', type=float, default=0.6, 
                       help='视频模糊判定的I帧比例阈值')
     
     # 通用参数
