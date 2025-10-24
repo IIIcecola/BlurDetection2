@@ -155,18 +155,20 @@ class BlurDetector:
 
     def _find_connected_regions(self, blur_patches):
         """找到相邻的模糊块（8邻域连通）"""
+        if not blur_patches:
+            return []
         visited = set()
         regions = []
         
-        for (row, col) in blur_patches:
-            if (row, col) not in visited:
+        for patch in blur_patches:
+            if patch not in visited:
                 # BFS寻找连通区域
-                queue = deque([(row, col)])
-                visited.add((row, col))
-                region = {(row, col)}
+                queue = deque([patch])
+                visited.add((patch))
+                region = {patch}
                 
                 while queue:
-                    r, c = queue.popleft()
+                    r, c = queue.pop(0)
                     # 检查8个方向的邻居
                     for dr in (-1, 0, 1):
                         for dc in (-1, 0, 1):
@@ -214,9 +216,11 @@ class BlurDetector:
                     "local_threshold": float(local_thresh),
                     "is_blur": is_blur
                 })
-            
+            logger.debug(f"总模糊块数量: {len(blur_patches)}")
             # 3. 连通区域分析并过滤小区域
             regions = self._find_connected_regions(blur_patches)
+            for i, region in enumerate(regions):
+                logger.debug(f"连通区域{i+1}包含块数量: {len(region)}")
             valid_regions = [r for r in regions if len(r) >= self.min_region_size]
             valid_blur_patches = set()
             for region in valid_regions:
