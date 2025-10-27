@@ -144,12 +144,10 @@ class BlurDetector:
             for x in range(0, w, self.patch_size):
                 x2 = min(x + self.patch_size, w)
                 patch = image[y:y2, x:x2]
-                
-                # 关键修复：coord使用(行索引, 列索引)，而非像素坐标
                 patches.append(((row_idx, col_idx), patch, (x, y, x2, y2)))
-                col_idx += 1  # 列索引递增
+                col_idx += 1  
             
-            row_idx += 1  # 行索引递增
+            row_idx += 1  
         
         return patches
 
